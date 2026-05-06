@@ -1,0 +1,9 @@
+---
+# Master playbook — runs all other playbooks in order
+# This is the single entry point for configuring all servers
+
+- name: Apply system hardening
+  import_playbook: hardening.yml
+
+- name: Configure web servers
+  import_playbook: webserver.yml
