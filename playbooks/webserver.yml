@@ -1,0 +1,10 @@
+---
+# Web server configuration playbook
+# Installs and configures Apache on all web servers
+
+- name: Configure Web Servers
+  hosts: webservers
+  become: true
+
+  roles:
+    - webserver
