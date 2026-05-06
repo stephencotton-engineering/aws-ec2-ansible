@@ -1,0 +1,38 @@
+---
+# Tasks for installing and configuring the web server
+
+# Install Apache web server
+- name: Install Apache
+  yum:
+    name: httpd
+    state: present
+
+# Make sure Apache starts on every reboot
+- name: Enable Apache to start on boot
+  service:
+    name: httpd
+    enabled: true
+
+# Start Apache if it isn't already running
+- name: Start Apache service
+  service:
+    name: httpd
+    state: started
+
+# Deploy the web page using a Jinja2 template
+- name: Deploy index.html from template
+  template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+    owner: apache
+    group: apache
+    mode: "0644"
+  notify: Restart Apache
+
+# Make sure port 80 is open in the firewall
+- name: Open port 80 in firewall
+  firewalld:
+    service: http
+    permanent: true
+    state: enabled
+  notify: Reload Firewall
