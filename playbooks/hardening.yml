@@ -1,0 +1,60 @@
+---
+# Basic system hardening playbook
+# Runs on all web servers before application configuration
+
+- name: System Hardening
+  hosts: webservers
+  become: true
+
+  tasks:
+    # Update all system packages to latest versions
+    - name: Update all packages
+      yum:
+        name: "*"
+        state: latest
+
+    # Disable root SSH login for security
+    - name: Disable root SSH login
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^PermitRootLogin"
+        line: "PermitRootLogin no"
+        state: present
+      notify: Restart SSH
+
+    # Disable password authentication — key based only
+    - name: Disable SSH password authentication
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^PasswordAuthentication"
+        line: "PasswordAuthentication no"
+        state: present
+      notify: Restart SSH
+
+    # Set correct permissions on SSH directory
+    - name: Set SSH directory permissions
+      file:
+        path: /home/ec2-user/.ssh
+        mode: "0700"
+        owner: ec2-user
+        group: ec2-user
+
+    # Install fail2ban to block repeated failed login attempts
+    - name: Install fail2ban
+      yum:
+        name: fail2ban
+        state: present
+
+    # Enable and start fail2ban service
+    - name: Enable and start fail2ban
+      service:
+        name: fail2ban
+        state: started
+        enabled: true
+
+  handlers:
+    # Restart SSH only when notified by a task above
+    - name: Restart SSH
+      service:
+        name: sshd
+        state: restarted
