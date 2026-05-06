@@ -1,0 +1,15 @@
+---
+# Handlers are only triggered when a task notifies them
+# They run once at the end of the play even if notified multiple times
+
+# Restart Apache when configuration or content changes
+- name: Restart Apache
+  service:
+    name: httpd
+    state: restarted
+
+# Reload firewall when firewall rules change
+- name: Reload Firewall
+  service:
+    name: firewalld
+    state: reloaded
